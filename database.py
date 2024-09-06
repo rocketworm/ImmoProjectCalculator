@@ -14,6 +14,14 @@ def create_connection(db_file='immoprojectcalculator.db'):
 
 # Create tables for rental properties
 def create_tables(conn):
+    create_rental_complex_table = '''
+    CREATE TABLE IF NOT EXISTS rental_complex (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        address TEXT NOT NULL
+    );
+    '''
+
     create_rental_properties_table = '''
     CREATE TABLE IF NOT EXISTS rental_properties (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -24,11 +32,14 @@ def create_tables(conn):
         average_stay_duration REAL,
         cleaning_charged_per_booking REAL, 
         base_room_rate REAL,
-        UNIQUE(area_sqm, beds, rent_per_month)  -- Ensure unique entries
+        rental_complex_id INTEGER,
+        FOREIGN KEY (rental_complex_id) REFERENCES rental_complex(id) ON DELETE CASCADE
     );
     '''
+
     try:
         cursor = conn.cursor()
+        cursor.execute(create_rental_complex_table)
         cursor.execute(create_rental_properties_table)
         conn.commit()
         print("Tables created successfully")
@@ -39,9 +50,10 @@ def create_tables(conn):
 # Insert data into rental_properties table if it doesn't already exist
 def insert_rental_property(conn, rental_property):
     sql = '''
-    INSERT OR IGNORE INTO rental_properties (area_sqm, beds, rent_per_month, furnishing_costs, 
-                                             average_stay_duration, cleaning_charged_per_booking, base_room_rate)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO rental_properties (area_sqm, beds, rent_per_month, furnishing_costs, 
+                                   average_stay_duration, cleaning_charged_per_booking, 
+                                   base_room_rate, rental_complex_id)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     '''
     cursor = conn.cursor()
     cursor.execute(sql, rental_property)

@@ -14,7 +14,7 @@ class RentalProperty:
     depreciation_years = 10
 
     def __init__(self, area_sqm, beds, rent_per_month, furnishing_costs, average_stay_duration,
-                 cleaning_charged_per_booking, base_room_rate):
+                 cleaning_charged_per_booking, base_room_rate, rental_complex_id):
         self.area_sqm = area_sqm
         self.beds = beds
         self.rent_per_month = rent_per_month
@@ -22,13 +22,14 @@ class RentalProperty:
         self.average_stay_duration = average_stay_duration
         self.cleaning_charged_per_booking = cleaning_charged_per_booking
         self.base_room_rate = base_room_rate
+        self.rental_complex_id = rental_complex_id
 
     @classmethod
     def from_db_row(cls, db_row):
-        """
-        Create an instance of RentalProperty from a tuple (e.g., a database row).
-        """
-        return cls(db_row[1], db_row[2], db_row[3], db_row[4], db_row[5], db_row[6], db_row[7])
+        if len(db_row) == 8:
+            # Handle case where rental_complex_id is missing (old schema)
+            return cls(db_row[1], db_row[2], db_row[3], db_row[4], db_row[5], db_row[6], db_row[7], None)
+        return cls(db_row[1], db_row[2], db_row[3], db_row[4], db_row[5], db_row[6], db_row[7], db_row[8])
 
     def calculate_yearly_profit(self, calculated_occupancy, current_room_rate):
         nights_rented_per_month = round(30 * calculated_occupancy, 1)

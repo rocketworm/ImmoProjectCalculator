@@ -17,6 +17,9 @@ def index():
     properties_data = fetch_rental_properties(conn)
     conn.close()
 
+    # Print properties_data for debugging
+    print(f"Fetched properties data: {properties_data}")
+
     # Convert database rows to RentalProperty instances
     rental_properties = [RentalProperty.from_db_row(row) for row in properties_data]
 
@@ -49,6 +52,13 @@ def index():
 # Add new property form
 @app.route('/add', methods=['GET', 'POST'])
 def add_property():
+    conn = create_connection()
+
+    # Fetch available rental complexes
+    cursor = conn.cursor()
+    cursor.execute("SELECT id, name FROM rental_complex")
+    complexes = cursor.fetchall()
+
     if request.method == 'POST':
         # Capture form data
         area_sqm = request.form['area_sqm']
@@ -58,18 +68,18 @@ def add_property():
         average_stay_duration = request.form['average_stay_duration']
         cleaning_charged_per_booking = request.form['cleaning_charged_per_booking']
         base_room_rate = request.form['base_room_rate']
+        rental_complex_id = request.form['rental_complex_id']
 
         # Insert property into the database
-        conn = create_connection()
         insert_rental_property(conn, (
             area_sqm, beds, rent_per_month, furnishing_costs,
-            average_stay_duration, cleaning_charged_per_booking, base_room_rate
+            average_stay_duration, cleaning_charged_per_booking, base_room_rate, rental_complex_id
         ))
         conn.close()
 
         return redirect(url_for('index'))
 
-    return render_template('add_property.html')
+    return render_template('add_property.html', complexes=complexes)
 
 
 # Edit property
@@ -138,6 +148,41 @@ def delete_property(property_id):
     conn.close()
     return redirect(url_for('index'))
 
+# Add a property complex
+@app.route('/add_complex', methods=['GET', 'POST'])
+def add_complex():
+    if request.method == 'POST':
+        name = request.form['name']
+        address = request.form['address']
+
+        conn = create_connection()
+        cursor = conn.cursor()
+        cursor.execute("INSERT INTO rental_complex (name, address) VALUES (?, ?)", (name, address))
+        conn.commit()
+        conn.close()
+
+        return redirect(url_for('index'))
+
+    return render_template('add_complex.html')
+
+# Check Database Tables
+@app.route('/check_table')
+def check_table():
+    conn = create_connection()
+    cursor = conn.cursor()
+
+    # Run the PRAGMA command to get table info
+    cursor.execute("PRAGMA table_info(rental_properties);")
+    table_info = cursor.fetchall()
+
+    # Print the table structure
+    print("Table structure of rental_properties:")
+    for row in table_info:
+        print(row)
+
+    conn.close()
+
+    return "Check the console for table info."
 
 if __name__ == '__main__':
     app.run(debug=True)
