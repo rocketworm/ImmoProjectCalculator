@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Property</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="container mt-5">
+<h1>Edit Property</h1>
+<form method="POST">
+    <div class="mb-3">
+        <label for="area_sqm" class="form-label">Area (sqm):</label>
+        <input type="text" name="area_sqm" id="area_sqm" class="form-control" value="{{ property[1] }}">
+    </div>
+    <div class="mb-3">
+        <label for="beds" class="form-label">Beds:</label>
+        <input type="text" name="beds" id="beds" class="form-control" value="{{ property[2] }}">
+    </div>
+    <div class="mb-3">
+        <label for="rent_per_month" class="form-label">Rent (€/month):</label>
+        <input type="text" name="rent_per_month" id="rent_per_month" class="form-control" value="{{ property[3] }}">
+    </div>
+    <div class="mb-3">
+        <label for="furnishing_costs" class="form-label">Furnishing (€):</label>
+        <input type="text" name="furnishing_costs" id="furnishing_costs" class="form-control" value="{{ property[4] }}">
+    </div>
+    <div class="mb-3">
+        <label for="average_stay_duration" class="form-label">Avg Stay (days):</label>
+        <input type="text" name="average_stay_duration" id="average_stay_duration" class="form-control"
+               value="{{ property[5] }}">
+    </div>
+    <div class="mb-3">
+        <label for="cleaning_charged_per_booking" class="form-label">Cleaning (€/booking):</label>
+        <input type="text" name="cleaning_charged_per_booking" id="cleaning_charged_per_booking" class="form-control"
+               value="{{ property[6] }}">
+    </div>
+    <div class="mb-3">
+        <label for="base_room_rate" class="form-label">Base Room Rate (€/night):</label>
+        <input type="text" name="base_room_rate" id="base_room_rate" class="form-control" value="{{ property[7] }}">
+    </div>
+    <button type="submit" class="btn btn-success">Update Property</button>
+</form>
+</body>
+</html>
