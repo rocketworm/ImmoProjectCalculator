@@ -66,11 +66,8 @@ class ProfitHeatmapGenerator:
             title='Impact of Room Rate Changes on Cumulative Profit (€)',
             xaxis_title='Occupancy Rate',
             yaxis_title='Percentage Change in Room Rate',
-            xaxis=dict(tickmode='array', tickvals=self.occupancy_rates, ticktext=[f'{x:.1f}'
-                                                                                  for x in self.occupancy_rates]),
-            yaxis=dict(tickmode='array', tickvals=self.percentage_changes,
-                       ticktext=[f'{x:.1f}' for x in self.percentage_changes]),
             annotations=annotations
         )
 
-        fig.show()
+        # Return the heatmap as an HTML div string
+        return fig.to_html(full_html=False)
