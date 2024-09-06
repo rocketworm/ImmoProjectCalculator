@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for
 from database import create_connection, create_tables, insert_rental_property, fetch_rental_properties, \
     delete_rental_property
 from rental_profit_visualization import generate_heatmap_for_property
+from profit_heatmap_generator import ProfitHeatmapGenerator
 from rental_property import RentalProperty
 
 app = Flask(__name__)
@@ -10,10 +11,28 @@ app = Flask(__name__)
 # Home route: View all properties
 @app.route('/')
 def index():
+    # Fetch all properties from the database
     conn = create_connection()
-    properties = fetch_rental_properties(conn)
+    properties_data = fetch_rental_properties(conn)
     conn.close()
-    return render_template('index.html', properties=properties)
+
+    # Convert database rows to RentalProperty instances
+    rental_properties = [RentalProperty.from_db_row(row) for row in properties_data]
+
+    # Define occupancy rates and percentage changes for the heatmap
+    occupancy_rates = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+    percentage_changes = [-0.4, -0.3, -0.2, -0.1, 0, 0.1, 0.2, 0.3, 0.4]
+
+    # Generate the cumulative profit heatmap for all properties
+    if rental_properties:
+        heatmap_generator = ProfitHeatmapGenerator(rental_properties, occupancy_rates, percentage_changes)
+        df = heatmap_generator.calculate_profits()  # Get the data frame with profits
+        heatmap_html = heatmap_generator.create_heatmap(df)  # Generate the heatmap HTML
+    else:
+        heatmap_html = "<p>No properties available for heatmap generation.</p>"
+
+    # Render the index.html page with properties and heatmap
+    return render_template('index.html', properties=properties_data, heatmap=heatmap_html)
 
 
 # Add new property form
@@ -40,7 +59,6 @@ def add_property():
         return redirect(url_for('index'))
 
     return render_template('add_property.html')
-
 
 
 # Edit property
