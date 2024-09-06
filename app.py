@@ -13,6 +13,7 @@ app = Flask(__name__)
 def index():
     # Fetch all properties from the database
     conn = create_connection()
+    create_tables(conn)  # This will ensure tables exist on app startup
     properties_data = fetch_rental_properties(conn)
     conn.close()
 
@@ -23,11 +24,21 @@ def index():
     occupancy_rates = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
     percentage_changes = [-0.4, -0.3, -0.2, -0.1, 0, 0.1, 0.2, 0.3, 0.4]
 
+    # Debugging Output
+    print(f"Properties: {rental_properties}")
+    print(f"Occupancy Rates: {occupancy_rates}")
+    print(f"Percentage Changes: {percentage_changes}")
+
     # Generate the cumulative profit heatmap for all properties
     if rental_properties:
-        heatmap_generator = ProfitHeatmapGenerator(rental_properties, occupancy_rates, percentage_changes)
-        df = heatmap_generator.calculate_profits()  # Get the data frame with profits
-        heatmap_html = heatmap_generator.create_heatmap(df)  # Generate the heatmap HTML
+        try:
+            heatmap_generator = ProfitHeatmapGenerator(rental_properties, occupancy_rates, percentage_changes)
+            df = heatmap_generator.calculate_profits()  # Get the data frame with profits
+            heatmap_html = heatmap_generator.create_heatmap(df)  # Generate the heatmap HTML
+            print("Heatmap generated successfully.")
+        except Exception as e:
+            print(f"Error generating heatmap: {e}")
+            heatmap_html = "<p>Error generating heatmap.</p>"
     else:
         heatmap_html = "<p>No properties available for heatmap generation.</p>"
 
